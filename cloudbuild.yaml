@@ -1,0 +1,17 @@
+steps:
+  # Publish to Artifact Registry
+  - id: 'Publish to Artifact Registry'
+    name: us-docker.pkg.dev/fzo-build/fzo-build-utils/devops/pypi3-tools:latest
+    entrypoint: /bin/bash
+    args:
+      - -c
+      - |
+        pip install keyring keyrings.google-artifactregistry-auth
+
+        [[ "$BRANCH_NAME" == "main" ]] \
+          && (
+            pip install --upgrade pip setuptools twine wheel \
+              && python setup.py sdist bdist_wheel \
+              && twine upload --repository-url https://us-python.pkg.dev/fzo-build/python/ dist/*) \
+          || echo "Skipping package publish for non-main builds..." \
+        && true
